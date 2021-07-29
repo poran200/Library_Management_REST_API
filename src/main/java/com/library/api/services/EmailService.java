@@ -41,7 +41,7 @@ public class EmailService {
   }
   public void send(Mail mail) throws MessagingException {
       MimeMessage mimeMessage = mailSender.createMimeMessage();
-      var helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+      MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
       helper.setTo(mail.getTo());
       helper.setText(mail.getContent(),true);
       helper.setSubject(mail.getSubject());

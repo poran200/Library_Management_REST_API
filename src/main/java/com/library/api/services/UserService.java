@@ -16,6 +16,7 @@ import com.library.api.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.RandomStringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -126,10 +127,15 @@ public class UserService {
     }
 
     private User validateUser(String newUsername, String newEmail) throws ResourceExistException {
+        User user = new User();
         Optional<User> userByEmail = userRepository.findByEmail(newEmail);
         if (userByEmail.isPresent()) throw new ResourceExistException("Email already taken : " + newEmail);
-        return userRepository.findByUsername(newUsername)
-                .orElseThrow(() -> new ResourceExistException("user name already taken : " + newUsername));
+        Optional<User> optionalUser = userRepository.findByUsername(newUsername);
+        if (optionalUser.isPresent()) {
+            BeanUtils.copyProperties(optionalUser.get(),user);
+            throw  new ResourceExistException("user name already taken : " + newUsername);
+        }
+        return user;
     }
 
     private Response getRegisterUserResponse(User user) {
