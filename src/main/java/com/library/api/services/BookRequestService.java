@@ -48,7 +48,27 @@ public class BookRequestService {
         }
         throw new ResourceNotFoundException("Book request not found by student id: " + studentId);
     }
+    public Response findById(long id) throws ResourceNotFoundException {
+        Optional<BookRequest> optionalBookRequest = bookRequestRepository.findById(id);
+        if (optionalBookRequest.isPresent()){
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"Book request found by Id : "+id,
+                    modelMapper.map(optionalBookRequest.get(),BookRequestResponseDto.class));
+        }else{
+            throw new ResourceNotFoundException("Book request not found by Id : "+id);
+        }
+    }
+    public Response deleteById(long id) throws ResourceNotFoundException {
+       if (bookRequestRepository.existsById(id)){
+           bookRequestRepository.deleteById(id);
+       }
+        throw new ResourceNotFoundException("Book request not found by Id : "+id);
+    }
 
+    /**
+     * @param dto   only update the status accept or reject
+     * @return update response
+     * @throws ResourceNotFoundException if the request not found
+     */
     public Response update(BookRequestResponseDto dto) throws ResourceNotFoundException {
         Optional<BookRequest> optionalBookRequest = bookRequestRepository.findById(dto.getId());
         if (optionalBookRequest.isPresent()) {
