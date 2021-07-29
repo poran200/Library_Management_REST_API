@@ -4,23 +4,44 @@ package com.library.api.advice;/*
  * @Author Poran chowdury
  */
 
+import com.library.api.dto.Response;
 import com.library.api.exception.ResourceExistException;
 import com.library.api.exception.ResourceNotFoundException;
 import com.library.api.util.ResponseBuilder;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.persistence.NoResultException;
+import java.io.IOException;
+import java.util.Objects;
+
 @RestControllerAdvice
 @Log4j2
 public class GlobalControllerAdvice {
+    private static final String ACCOUNT_LOCKED = "Your account has been locked. please contract administration";
+    private static final String METHOD_IS_NOT_ALLOWED ="This request is not allowed on this endpoint. Please send a '%s' request ";
+    private static final String INTERNAL_SERVER_ERROR_MSG = "An error occurred while processing the request";
+    private static final String INCORRECT_CREDENTIALS= "Username / Password incorrect. Please try again";
+    private static final String ACCOUNT_DISABLED ="Your account has been disabled. if this is an error , please contact administration";
+    private static final String ERROR_PROCESSING_FILE = "Error occurred while processing file";
+    private static final String NOT_ENOUGH_PERMISSION= "You do not have to enough permission";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -67,4 +88,55 @@ public class GlobalControllerAdvice {
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                 .body(ResponseBuilder.getFailureResponse(HttpStatus.NOT_ACCEPTABLE,ex.getMessage()));
     }
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Response> accountDisabledException(){
+        return createHttpResponse(HttpStatus.BAD_REQUEST,ACCOUNT_DISABLED);
+    }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Response> badCredentialException(){
+        return createHttpResponse(HttpStatus.BAD_REQUEST,INCORRECT_CREDENTIALS);
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Response> accessDeniedException(){
+        return createHttpResponse(HttpStatus.FORBIDDEN,NOT_ENOUGH_PERMISSION);
+    }
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<Response> accountLockedException(){
+        return createHttpResponse(HttpStatus.UNAUTHORIZED,ACCOUNT_LOCKED);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Response> methodNotSupportedException(HttpRequestMethodNotSupportedException ex){
+        HttpMethod httpMethod = Objects.requireNonNull(ex.getSupportedHttpMethods()).iterator().next();
+        return createHttpResponse(HttpStatus.METHOD_NOT_ALLOWED, String.format(METHOD_IS_NOT_ALLOWED,httpMethod));
+    }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Response> internalServerErrorException(Exception ex){
+        log.error(ex.getMessage());
+        return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR,INTERNAL_SERVER_ERROR_MSG);
+    }
+    @ExceptionHandler(NoResultException.class)
+    public ResponseEntity<Response> notFoundException(NoResultException ex){
+        log.error(ex.getMessage());
+        return createHttpResponse(HttpStatus.NOT_FOUND,getMessage(ex));
+    }
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Response> ioException(IOException ex){
+        log.error(ex.getMessage());
+        return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR,ERROR_PROCESSING_FILE);
+    }
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<Response> noHandlerFoundException(NoHandlerFoundException ex){
+        log.error(ex.getMessage());
+        return createHttpResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
+    }
+    private String getMessage(Exception ex) {
+        return ex.getMessage();
+    }
+
+    private ResponseEntity<Response> createHttpResponse(HttpStatus httpStatus, String message){
+
+        return ResponseEntity.status(httpStatus.value()).body( ResponseBuilder.getFailureResponse(httpStatus,message));
+    }
+
 }
