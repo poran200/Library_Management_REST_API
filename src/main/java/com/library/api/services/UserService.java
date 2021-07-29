@@ -5,17 +5,18 @@ package com.library.api.services;/*
  */
 
 import com.library.api.dto.*;
+import com.library.api.event.OnUserPasswordSendEvent;
 import com.library.api.exception.ResourceExistException;
 import com.library.api.exception.ResourceNotFoundException;
 import com.library.api.model.Role;
 import com.library.api.model.User;
-import com.library.api.repository.BookRepository;
 import com.library.api.repository.BookRequestRepository;
 import com.library.api.repository.UserRepository;
 import com.library.api.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.RandomStringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final BookRequestRepository bookRequestRepository;
-
+    private final ApplicationEventPublisher eventPublisher;
     /**
      * @param dto student registration dto
      * @return response with user
@@ -136,7 +137,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(generatePassword));
         user.setAccountNotLocked(true);
         user.setActive(true);
-        // todo send an email with user password
+        OnUserPasswordSendEvent onUserPasswordSendEvent = new OnUserPasswordSendEvent(user.getFistName(), user.getEmail(), generatePassword);
+        eventPublisher.publishEvent(onUserPasswordSendEvent);
         User saveUser = userRepository.save(user);
         return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED,
                 "User created please check your email get the password and log in",
