@@ -4,6 +4,8 @@ package com.library.api.advice;/*
  * @Author Poran chowdury
  */
 
+import com.library.api.exception.ResourceExistException;
+import com.library.api.exception.ResourceNotFoundException;
 import com.library.api.util.ResponseBuilder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -47,9 +49,22 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ResponseEntity<Object> nohandlaerfound(NoHandlerFoundException ex, WebRequest request) {
+    public ResponseEntity<Object> recourseExist(NoHandlerFoundException ex, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,ex.getMessage()));
     }
-
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ResponseEntity<Object> resourceNotFound(ResourceNotFoundException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,ex.getMessage()));
+    }
+    @ExceptionHandler(ResourceExistException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    @ResponseBody
+    public ResponseEntity<Object> recourseExist(ResourceNotFoundException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                .body(ResponseBuilder.getFailureResponse(HttpStatus.NOT_ACCEPTABLE,ex.getMessage()));
+    }
 }
