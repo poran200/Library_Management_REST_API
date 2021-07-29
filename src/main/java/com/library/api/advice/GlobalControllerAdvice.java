@@ -4,7 +4,6 @@ package com.library.api.advice;/*
  * @Author Poran chowdury
  */
 
-import com.library.api.dto.Response;
 import com.library.api.exception.ResourceExistException;
 import com.library.api.exception.ResourceNotFoundException;
 import com.library.api.util.ResponseBuilder;
@@ -34,7 +33,7 @@ import java.util.Objects;
 
 @RestControllerAdvice
 @Log4j2
-public class GlobalControllerAdvice {
+public class GlobalControllerAdvice{
     private static final String ACCOUNT_LOCKED = "Your account has been locked. please contract administration";
     private static final String METHOD_IS_NOT_ALLOWED ="This request is not allowed on this endpoint. Please send a '%s' request ";
     private static final String INTERNAL_SERVER_ERROR_MSG = "An error occurred while processing the request";
@@ -84,57 +83,52 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(ResourceExistException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     @ResponseBody
-    public ResponseEntity<Object> recourseExist(ResourceNotFoundException ex, WebRequest request) {
+    public ResponseEntity<Object> recourseExist(ResourceExistException ex, WebRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                 .body(ResponseBuilder.getFailureResponse(HttpStatus.NOT_ACCEPTABLE,ex.getMessage()));
     }
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<Response> accountDisabledException(){
+    public ResponseEntity<Object> accountDisabledException(){
         return createHttpResponse(HttpStatus.BAD_REQUEST,ACCOUNT_DISABLED);
     }
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Response> badCredentialException(){
+    public ResponseEntity<Object> badCredentialException(){
         return createHttpResponse(HttpStatus.BAD_REQUEST,INCORRECT_CREDENTIALS);
     }
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Response> accessDeniedException(){
+    public ResponseEntity<Object> accessDeniedException(){
         return createHttpResponse(HttpStatus.FORBIDDEN,NOT_ENOUGH_PERMISSION);
     }
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<Response> accountLockedException(){
+    public ResponseEntity<Object> accountLockedException(){
         return createHttpResponse(HttpStatus.UNAUTHORIZED,ACCOUNT_LOCKED);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Response> methodNotSupportedException(HttpRequestMethodNotSupportedException ex){
+    public ResponseEntity<Object> methodNotSupportedException(HttpRequestMethodNotSupportedException ex){
         HttpMethod httpMethod = Objects.requireNonNull(ex.getSupportedHttpMethods()).iterator().next();
         return createHttpResponse(HttpStatus.METHOD_NOT_ALLOWED, String.format(METHOD_IS_NOT_ALLOWED,httpMethod));
     }
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Response> internalServerErrorException(Exception ex){
+    public ResponseEntity<Object> internalServerErrorException(Exception ex){
         log.error(ex.getMessage());
         return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR,INTERNAL_SERVER_ERROR_MSG);
     }
     @ExceptionHandler(NoResultException.class)
-    public ResponseEntity<Response> notFoundException(NoResultException ex){
+    public ResponseEntity<Object> notFoundException(NoResultException ex){
         log.error(ex.getMessage());
         return createHttpResponse(HttpStatus.NOT_FOUND,getMessage(ex));
     }
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<Response> ioException(IOException ex){
+    public ResponseEntity<Object> ioException(IOException ex){
         log.error(ex.getMessage());
         return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR,ERROR_PROCESSING_FILE);
-    }
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<Response> noHandlerFoundException(NoHandlerFoundException ex){
-        log.error(ex.getMessage());
-        return createHttpResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
     }
     private String getMessage(Exception ex) {
         return ex.getMessage();
     }
 
-    private ResponseEntity<Response> createHttpResponse(HttpStatus httpStatus, String message){
+    private ResponseEntity<Object> createHttpResponse(HttpStatus httpStatus, String message){
 
         return ResponseEntity.status(httpStatus.value()).body( ResponseBuilder.getFailureResponse(httpStatus,message));
     }
