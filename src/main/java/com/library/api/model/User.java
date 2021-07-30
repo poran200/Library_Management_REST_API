@@ -15,6 +15,7 @@ import java.util.Set;
 @Entity
 @Data
 @NoArgsConstructor
+@Table(name = "library_user")
 public class User {
     @Id@GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
