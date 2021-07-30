@@ -43,12 +43,12 @@ public final class ResponseBuilder {
                 .timestamp(new Date().getTime())
                 .build();
     }
-    public static Response getSuccessResponse(HttpStatus status, String message, Object content){
+    public static Response getSuccessResponse(HttpStatus status, String message, Object data){
         return Response.builder()
                 .massage(message)
                 .status(status.getReasonPhrase())
                 .statusCode( status.value())
-                .data(content)
+                .data(data)
                 .timestamp(new Date().getTime())
                 .build();
     }
@@ -70,14 +70,13 @@ public final class ResponseBuilder {
                 .timestamp(new Date().getTime())
                 .build();
     }
-    public static Response getSuccessResponsePageWithReviewCount(HttpStatus status, String message, Page<?> page, Object reviewStatus){
+    public static Response getSuccessResponsePageWithReviewCount(HttpStatus status, String message, Page<?> page){
         return Response.builder()
                 .massage(message)
                 .status(status.getReasonPhrase())
                 .statusCode( status.value())
                 .page(page)
                 .timestamp(new Date().getTime())
-                .reviewStatusCount(reviewStatus)
                 .build();
     }
     public static Response getSuccessResponseList(HttpStatus status, String message, List<?> contentList, int numberOfElement){

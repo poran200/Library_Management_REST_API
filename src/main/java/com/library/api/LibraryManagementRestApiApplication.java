@@ -1,6 +1,5 @@
 package com.library.api;
 
-import com.library.api.model.Role;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

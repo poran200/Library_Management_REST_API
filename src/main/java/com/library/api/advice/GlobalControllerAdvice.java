@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -118,6 +119,11 @@ public class GlobalControllerAdvice{
     public ResponseEntity<Object> notFoundException(NoResultException ex){
         log.error(ex.getMessage());
         return createHttpResponse(HttpStatus.NOT_FOUND,getMessage(ex));
+    }
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Object> massgeReadAbleException(HttpMessageNotReadableException ex){
+        log.error(ex.getMessage());
+        return createHttpResponse(HttpStatus.BAD_REQUEST,getMessage(ex));
     }
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Object> ioException(IOException ex){

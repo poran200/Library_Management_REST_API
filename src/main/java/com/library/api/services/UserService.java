@@ -29,11 +29,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class UserService {
+    public static final String USER_NAME_ALREADY_TAKEN = "user name already taken : ";
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final BookRequestRepository bookRequestRepository;
     private final ApplicationEventPublisher eventPublisher;
+
     /**
      * @param dto student registration dto
      * @return response with user
@@ -53,7 +55,7 @@ public class UserService {
         return getRegisterUserResponse(user);
     }
 
-    public Response findByUserName(String username) throws  ResourceNotFoundException {
+    public Response findByUserName(String username) throws ResourceNotFoundException {
         User byUsername = getUserByName(username);
         return ResponseBuilder.getSuccessResponse(HttpStatus.OK, "User found by user name ",
                 modelMapper.map(byUsername, StudentUserDto.class));
@@ -85,17 +87,17 @@ public class UserService {
         }
     }
 
-    public Response update(LibrarianDto dto) throws ResourceExistException {
-        User validateUser = getUpdateUser(dto.getUsername(), dto.getEmail(), dto.getFistName(), dto.getLastName(),
-                                           dto.getMobileNO(), dto.isActive(), dto.isAccountNotLocked());
+    public Response update(LibrarianDto dto) throws ResourceExistException, ResourceNotFoundException {
+        User validateUser = getUpdateUser(dto.getId(), dto.getUsername(), dto.getEmail(), dto.getFistName(), dto.getLastName(),
+                dto.getMobileNO(), dto.isActive(), dto.isAccountNotLocked());
         User updateUser = userRepository.save(validateUser);
         return ResponseBuilder.getSuccessResponse(HttpStatus.OK, "User updated",
                 modelMapper.map(updateUser, LibrarianDto.class));
     }
 
-    public Response update(StudentUserDto dto) throws ResourceExistException {
-        User validateUser = getUpdateUser(dto.getUsername(), dto.getEmail(), dto.getFistName(), dto.getLastName(),
-                                           dto.getMobileNO(), dto.isActive(), dto.isAccountNotLocked());
+    public Response update(StudentUserDto dto) throws ResourceExistException, ResourceNotFoundException {
+        User validateUser = getUpdateUser(dto.getId(), dto.getUsername(), dto.getEmail(), dto.getFistName(), dto.getLastName(),
+                dto.getMobileNO(), dto.isActive(), dto.isAccountNotLocked());
         validateUser.setBatch(dto.getBatch());
         validateUser.setDepartment(dto.getDepartment());
         User updateUser = userRepository.save(validateUser);
@@ -103,9 +105,10 @@ public class UserService {
                 modelMapper.map(updateUser, LibrarianDto.class));
     }
 
-    private User getUpdateUser(String username, String email, String fistName, String lastName, String mobileNO,
-                               boolean active, boolean accountNotLocked) throws ResourceExistException {
-        User validateUser = validateUser(username, email);
+    private User getUpdateUser(Long id, String username, String email, String fistName, String lastName, String mobileNO,
+                               boolean active, boolean accountNotLocked) throws ResourceNotFoundException, ResourceExistException {
+        User validateUser = validateUpdateUser(id, username, email);
+        validateUser.setUsername(username);
         validateUser.setFistName(fistName);
         validateUser.setLastName(lastName);
         validateUser.setMobileNO(mobileNO);
@@ -114,14 +117,34 @@ public class UserService {
         validateUser.setEmail(email);
         return validateUser;
     }
-    private Response deleteUser(long id) throws ResourceNotFoundException {
-        if (userRepository.existsById(id)){
+
+    private User validateUpdateUser(Long id, String newUsername, String email) throws ResourceExistException, ResourceNotFoundException {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User curentUser = optionalUser.get();
+            Optional<User> userByUserName = userRepository.findByUsername(newUsername);
+            if (userByUserName.isPresent() && !curentUser.getId().equals(userByUserName.get().getId())) {
+                throw new ResourceExistException(USER_NAME_ALREADY_TAKEN + newUsername);
+            } else {
+                Optional<User> userByEmail = userRepository.findByEmail(email);
+                if (userByEmail.isPresent() && !curentUser.getId().equals(userByEmail.get().getId())) {
+                    throw new ResourceExistException("Eamil already exist: " + email);
+                }
+            }
+            return optionalUser.get();
+        }
+        throw new ResourceNotFoundException("User not found exception by id: " + id);
+    }
+
+    public Response deleteUser(long id) throws ResourceNotFoundException {
+        if (userRepository.existsById(id)) {
             bookRequestRepository.deleteAllByUser_Id(id);
             userRepository.deleteById(id);
-            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,"User deleted by id : "+id,null);
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK, "User deleted by id : " + id, null);
         }
-        throw new ResourceNotFoundException("User not found userId : "+id);
+        throw new ResourceNotFoundException("User not found userId : " + id);
     }
+
     private String generatePassword() {
         return RandomStringUtils.randomAlphanumeric(10);
     }
@@ -129,14 +152,15 @@ public class UserService {
     private User validateUser(String newUsername, String newEmail) throws ResourceExistException {
         User user = new User();
         Optional<User> userByEmail = userRepository.findByEmail(newEmail);
-        if (userByEmail.isPresent()) throw new ResourceExistException("Email already taken : " + newEmail);
+        if (userByEmail.isPresent()) throw new ResourceExistException("Email already taken : " + newUsername);
         Optional<User> optionalUser = userRepository.findByUsername(newUsername);
         if (optionalUser.isPresent()) {
-            BeanUtils.copyProperties(optionalUser.get(),user);
-            throw  new ResourceExistException("user name already taken : " + newUsername);
+            BeanUtils.copyProperties(optionalUser.get(), user);
+            throw new ResourceExistException(USER_NAME_ALREADY_TAKEN + newUsername);
         }
         return user;
     }
+
 
     private Response getRegisterUserResponse(User user) {
         String generatePassword = generatePassword();

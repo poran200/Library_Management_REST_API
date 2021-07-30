@@ -37,8 +37,6 @@ public class Response  implements Serializable {
     private List<Object> contentList;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Page<?> page;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Object reviewStatusCount;
 
 
 }
