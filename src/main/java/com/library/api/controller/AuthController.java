@@ -10,6 +10,7 @@ import com.library.api.dto.Response;
 import com.library.api.dto.StudentRegistrationDto;
 import com.library.api.exception.ResourceExistException;
 import com.library.api.services.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "User Registration and Log in  Rest API ",description = "for send request need to be login as admin or librarian on" +
+        " registration user password send to there email address ")
 public class AuthController extends GlobalControllerAdvice {
     private final UserService userService;
     @PostMapping("/registration/student")

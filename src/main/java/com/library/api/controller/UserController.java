@@ -26,21 +26,21 @@ import javax.validation.Valid;
 public class UserController  extends GlobalControllerAdvice {
     private final UserService userService;
     @GetMapping("/{username}")
-    public ResponseEntity<Response> finByUserName( @Validated  @PathVariable(required = true) String username) throws ResourceNotFoundException {
+    public ResponseEntity<Response> finByUserName(@Validated  @PathVariable(required = true) String username) throws ResourceNotFoundException {
        return ResponseEntity.ok().body(userService.findByUserName(username));
     }
     @GetMapping("/users/students")
     public ResponseEntity<Response> finAllUsersStudent(@RequestParam(defaultValue = "0") int pageNo,
-                                                @RequestParam(defaultValue = "20") int pageSize,
-                                                @RequestParam(defaultValue = "username") String sortBy){
+                                                          @RequestParam(defaultValue = "20") int pageSize,
+                                                          @RequestParam(defaultValue = "username") String sortBy){
         PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         Response response = userService.findAllStudents(pageRequest);
         return ResponseEntity.ok().body(response);
     }
     @GetMapping("/users/librarian")
     public ResponseEntity<Response> finAllUsersLibrarian(@RequestParam(defaultValue = "0") int pageNo,
-                                                @RequestParam(defaultValue = "20") int pageSize,
-                                                @RequestParam(defaultValue = "username") String sortBy){
+                                                            @RequestParam(defaultValue = "20") int pageSize,
+                                                            @RequestParam(defaultValue = "username") String sortBy){
         PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         Response response = userService.findAllLibrarian(pageRequest);
         return ResponseEntity.ok().body(response);
@@ -56,7 +56,7 @@ public class UserController  extends GlobalControllerAdvice {
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteById( @Validated @PathVariable(required = true) long id) throws ResourceNotFoundException {
+    public ResponseEntity<Response> deleteById(@Validated @PathVariable(required = true) long id) throws ResourceNotFoundException {
         return ResponseEntity.ok().body(userService.deleteUser(id));
     }
 
