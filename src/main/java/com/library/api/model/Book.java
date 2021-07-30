@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -17,7 +16,9 @@ import javax.persistence.Id;
 import static javax.persistence.GenerationType.AUTO;
 
 
-@Data@NoArgsConstructor@AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 @Entity
 public class Book {
@@ -33,5 +34,25 @@ public class Book {
     private int columnNo;
     private int noOfCopies;
     private String status;
+
+  public   boolean isAvailable() {
+        return this.noOfCopies > 0;
+    }
+
+    // when return a book
+   public void incrementNoOfCopy() {
+        this.noOfCopies = noOfCopies + 1;
+        if (isAvailable()) {
+           this.status = BookStatus.AVAILABLE.name();
+        }
+    }
+    //when borrow a book
+   public void decrementNoOfCopy() {
+        if (isAvailable()) {
+            this.noOfCopies = noOfCopies - 1;
+        }else if (this.noOfCopies == 0){
+            this.status = BookStatus.NOT_AVAILABLE.name();
+        }
+    }
 
 }
