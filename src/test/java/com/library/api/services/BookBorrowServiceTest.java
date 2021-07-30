@@ -2,6 +2,8 @@ package com.library.api.services;
 
 import com.library.api.dto.BookBorrowRequestDto;
 import com.library.api.dto.Response;
+import com.library.api.exception.BookNotAvailableException;
+import com.library.api.exception.ResourceExistException;
 import com.library.api.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /*
  * @created 7/29/2021
@@ -24,7 +26,7 @@ class BookBorrowServiceTest {
    private BookBorrowService bookBorrowService;
     @Transactional
     @Test
-    void borrowedABook() throws ResourceNotFoundException {
+    void borrowedABook() throws ResourceNotFoundException, ResourceExistException, BookNotAvailableException {
         Response response = bookBorrowService.borrowedABook(new BookBorrowRequestDto("2017100000028", 3L, null,null));
         assertEquals(response.getStatusCode(),HttpStatus.CREATED.value());
     }

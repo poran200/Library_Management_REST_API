@@ -4,6 +4,8 @@ package com.library.api.advice;/*
  * @Author Poran chowdury
  */
 
+import com.library.api.exception.BookNotAvailableException;
+import com.library.api.exception.BorrowBookNoUpdateException;
 import com.library.api.exception.ResourceExistException;
 import com.library.api.exception.ResourceNotFoundException;
 import com.library.api.util.ResponseBuilder;
@@ -78,6 +80,8 @@ public class GlobalControllerAdvice{
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ResponseEntity<Object> resourceNotFound(ResourceNotFoundException ex, WebRequest request) {
+        log.error(ex.getMessage());
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ResponseBuilder.getFailureResponse(HttpStatus.NOT_FOUND,ex.getMessage()));
     }
@@ -124,6 +128,16 @@ public class GlobalControllerAdvice{
     public ResponseEntity<Object> massgeReadAbleException(HttpMessageNotReadableException ex){
         log.error(ex.getMessage());
         return createHttpResponse(HttpStatus.BAD_REQUEST,getMessage(ex));
+    }
+    @ExceptionHandler(BookNotAvailableException.class)
+    public ResponseEntity<Object> bookNotAvailableException(BookNotAvailableException ex){
+        log.error(ex.getMessage());
+        return createHttpResponse(HttpStatus.NOT_ACCEPTABLE,getMessage(ex));
+    }
+    @ExceptionHandler(BorrowBookNoUpdateException.class)
+    public ResponseEntity<Object> borrowBookUpdateException(BorrowBookNoUpdateException ex){
+        log.error(ex.getMessage());
+        return createHttpResponse(HttpStatus.NOT_ACCEPTABLE,getMessage(ex));
     }
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Object> ioException(IOException ex){

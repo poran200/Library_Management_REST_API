@@ -5,6 +5,11 @@ package com.library.api.model;/*
  */
 
 public enum BorrowStatus {
-    RETURNED,
-    BORROWED
+    RETURNED("return"),
+    BORROWED("borrow");
+    private  String status;
+
+    BorrowStatus(String status) {
+        this.status = status;
+    }
 }

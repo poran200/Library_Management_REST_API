@@ -19,10 +19,8 @@ public class BookBorrowDto {
     @JsonProperty("borrowId")
     private Long id;
     private Long bookId;
-    private String bookName;
-    private String authorName;
-    private String edition;
-    @JsonIgnoreProperties({"password","role"})
+    private BookDto book;
+    @JsonIgnoreProperties({"password","role","borrowBooks"})
     private User student;
     private Date returnDate;
     private String status;
