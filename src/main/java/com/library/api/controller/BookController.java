@@ -5,6 +5,8 @@ package com.library.api.controller;/*
  */
 
 import com.library.api.advice.GlobalControllerAdvice;
+import com.library.api.config.IsLibrarian;
+import com.library.api.config.IsStudentRole;
 import com.library.api.dto.BookDto;
 import com.library.api.dto.Response;
 import com.library.api.exception.ResourceExistException;
@@ -24,20 +26,24 @@ import org.springframework.web.bind.annotation.*;
 public class BookController extends GlobalControllerAdvice {
     private final BookService bookService;
     @PostMapping
+    @IsLibrarian
     public ResponseEntity<Response> createABook(@Validated @RequestBody BookDto dto) throws ResourceExistException {
         Response response = bookService.create(dto);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
     @GetMapping("/{id}")
+    @IsStudentRole
     public ResponseEntity<Response> findById(@Validated @PathVariable(required = true) long id) throws ResourceNotFoundException {
         return ResponseEntity.ok().body(bookService.findById(id));
     }
     @PutMapping("/{id}")
+    @IsLibrarian
     public ResponseEntity<Response> updateBook(@Validated @PathVariable(required = true) long id,
                                                   @RequestBody BookDto dto ) throws ResourceNotFoundException, ResourceExistException {
         return ResponseEntity.ok().body(bookService.update(id,dto));
     }
     @GetMapping("/books")
+    @IsStudentRole
     public ResponseEntity<Response> finAllBooks(@RequestParam(defaultValue = "0") int pageNo,
                                                    @RequestParam(defaultValue = "20") int pageSize,
                                                    @RequestParam(defaultValue = "title") String sortBy){
@@ -46,6 +52,7 @@ public class BookController extends GlobalControllerAdvice {
         return ResponseEntity.ok().body(response);
     }
     @DeleteMapping("/{id}")
+    @IsLibrarian
     public ResponseEntity<Response> deleteBook(@Validated @PathVariable(required = true) long id) throws ResourceNotFoundException {
         return ResponseEntity.ok().body(bookService.deleteByBookId(id));
     }

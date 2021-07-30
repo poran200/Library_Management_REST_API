@@ -5,6 +5,7 @@ package com.library.api.controller;/*
  */
 
 import com.library.api.advice.GlobalControllerAdvice;
+import com.library.api.config.IsLibrarian;
 import com.library.api.dto.LibrarianDto;
 import com.library.api.dto.Response;
 import com.library.api.dto.StudentUserDto;
@@ -23,6 +24,7 @@ import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/user")
+@IsLibrarian
 public class UserController  extends GlobalControllerAdvice {
     private final UserService userService;
     @GetMapping("/{username}")

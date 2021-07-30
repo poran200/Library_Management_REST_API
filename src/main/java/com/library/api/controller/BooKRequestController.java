@@ -4,6 +4,8 @@ package com.library.api.controller;/*
  * @Author Poran chowdury
  */
 
+import com.library.api.config.IsLibrarian;
+import com.library.api.config.IsStudentRole;
 import com.library.api.dto.BookRequestCreateDto;
 import com.library.api.dto.BookRequestResponseDto;
 import com.library.api.dto.Response;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class BooKRequestController {
     private final BookRequestService bookRequestService;
     @PostMapping
+    @IsStudentRole
     public ResponseEntity<Response> create(@Validated @RequestBody BookRequestCreateDto dto) throws ResourceNotFoundException {
         String currentUsername = getCurrentUsername();
         if (currentUsername ==null){
@@ -34,15 +37,18 @@ public class BooKRequestController {
         Response response = bookRequestService.create(currentUsername, dto);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
+    @IsLibrarian
     @GetMapping("/{id}")
     public ResponseEntity<Response> findById(@Validated @PathVariable(required = true) long id) throws ResourceNotFoundException {
          return ResponseEntity.ok().body(bookRequestService.findById(id));
     }
+    @IsStudentRole
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Response> findById(@Validated @PathVariable(required = true) String studentId) throws ResourceNotFoundException {
         return ResponseEntity.ok().body(bookRequestService.findByStudentId(studentId));
     }
     @GetMapping("/requests")
+    @IsLibrarian
     public ResponseEntity<Response> findAllRequests(@RequestParam(defaultValue = "0") int pageNo,
                                                     @RequestParam(defaultValue = "20") int pageSize,
                                                     @RequestParam(defaultValue = "createdAt") String sortBy){
@@ -50,6 +56,7 @@ public class BooKRequestController {
         return ResponseEntity.ok().body(bookRequestService.finAllRequest(pageRequest));
     }
     @PutMapping
+    @IsLibrarian
    public ResponseEntity<Response> update(@Validated @RequestBody BookRequestResponseDto dto) throws ResourceNotFoundException {
         return ResponseEntity.ok().body(bookRequestService.update(dto));
    }

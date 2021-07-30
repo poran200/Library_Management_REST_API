@@ -4,6 +4,7 @@ package com.library.api.controller;/*
  * @Author Poran chowdury
  */
 
+import com.library.api.config.IsLibrarian;
 import com.library.api.dto.BookBorrowRequestDto;
 import com.library.api.dto.Response;
 import com.library.api.exception.BookNotAvailableException;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1/borrow")
 @RequiredArgsConstructor
+@IsLibrarian
 public class BookBorrowController {
     private final BookBorrowService borrowService;
 
