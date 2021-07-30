@@ -117,7 +117,7 @@ public class GlobalControllerAdvice{
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> internalServerErrorException(Exception ex){
         log.error(ex.getMessage());
-        return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR,INTERNAL_SERVER_ERROR_MSG);
+        return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
     }
     @ExceptionHandler(NoResultException.class)
     public ResponseEntity<Object> notFoundException(NoResultException ex){

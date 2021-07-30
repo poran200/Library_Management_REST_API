@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class Response  implements Serializable {
+public class Response implements Serializable {
     @JsonInclude(JsonInclude.Include.ALWAYS)
     private long timestamp;
     @JsonInclude(JsonInclude.Include.ALWAYS)

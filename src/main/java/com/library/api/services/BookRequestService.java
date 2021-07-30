@@ -89,6 +89,6 @@ public class BookRequestService {
     }
 
     private String getStatus(String status) {
-        return BookRequestStatus.valueOf(status).name();
+        return BookRequestStatus.valueOf(status.toUpperCase()).name();
     }
 }
