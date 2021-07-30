@@ -41,15 +41,15 @@ public class BookBorrowController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateBorrowBook(@Validated @PathVariable(required = true) long id,
-                                                     @RequestBody BookBorrowRequestDto dto) throws ResourceNotFoundException, BorrowBookNoUpdateException {
+                                                        @RequestBody BookBorrowRequestDto dto) throws ResourceNotFoundException, BorrowBookNoUpdateException {
         Response response = borrowService.update(id, dto);
         return ResponseEntity.status((int) response.getStatusCode()).body(response);
     }
 
     @GetMapping("/borrows")
     public ResponseEntity<Response> finAllBorrows(@RequestParam(defaultValue = "0") int pageNo,
-                                                  @RequestParam(defaultValue = "20") int pageSize,
-                                                  @RequestParam(defaultValue = "createdAt") String sortBy) {
+                                                     @RequestParam(defaultValue = "20") int pageSize,
+                                                     @RequestParam(defaultValue = "createdAt") String sortBy) {
         PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         Response response = borrowService.findAll(pageRequest);
         return ResponseEntity.ok().body(response);
