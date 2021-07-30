@@ -34,19 +34,19 @@ public class BookController extends GlobalControllerAdvice {
     }
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateBook(@Validated @PathVariable(required = true) long id,
-                                               @RequestBody BookDto dto ) throws ResourceNotFoundException, ResourceExistException {
+                                                  @RequestBody BookDto dto ) throws ResourceNotFoundException, ResourceExistException {
         return ResponseEntity.ok().body(bookService.update(id,dto));
     }
     @GetMapping("/books")
     public ResponseEntity<Response> finAllBooks(@RequestParam(defaultValue = "0") int pageNo,
-                                                         @RequestParam(defaultValue = "20") int pageSize,
-                                                         @RequestParam(defaultValue = "title") String sortBy){
+                                                   @RequestParam(defaultValue = "20") int pageSize,
+                                                   @RequestParam(defaultValue = "title") String sortBy){
         PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         Response response = bookService.findAllBooks(pageRequest);
         return ResponseEntity.ok().body(response);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteBook( @Validated @PathVariable(required = true) long id) throws ResourceNotFoundException {
+    public ResponseEntity<Response> deleteBook(@Validated @PathVariable(required = true) long id) throws ResourceNotFoundException {
         return ResponseEntity.ok().body(bookService.deleteByBookId(id));
     }
 }
