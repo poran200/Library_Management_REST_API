@@ -88,6 +88,7 @@ public class UserService {
     }
 
     public Response update(LibrarianDto dto) throws ResourceExistException, ResourceNotFoundException {
+        checkUserIsLibrarian(dto.getUsername());
         User validateUser = getUpdateUser(dto.getId(), dto.getUsername(), dto.getEmail(), dto.getFistName(), dto.getLastName(),
                 dto.getMobileNO(), dto.isActive(), dto.isAccountNotLocked());
         User updateUser = userRepository.save(validateUser);
@@ -96,6 +97,7 @@ public class UserService {
     }
 
     public Response update(StudentUserDto dto) throws ResourceExistException, ResourceNotFoundException {
+        checkUserIsStudent(dto.getUsername());
         User validateUser = getUpdateUser(dto.getId(), dto.getUsername(), dto.getEmail(), dto.getFistName(), dto.getLastName(),
                 dto.getMobileNO(), dto.isActive(), dto.isAccountNotLocked());
         validateUser.setBatch(dto.getBatch());
@@ -160,7 +162,14 @@ public class UserService {
         }
         return user;
     }
-
+   private void checkUserIsStudent(String username) throws ResourceNotFoundException {
+        userRepository.findByUsernameAndRole(username,Role.ROLE_STUDENT.name())
+                .orElseThrow(()-> new ResourceNotFoundException("User is not an student "+ username));
+   }
+    private void checkUserIsLibrarian(String username) throws ResourceNotFoundException {
+        userRepository.findByUsernameAndRole(username,Role.ROLE_LIBRARIAN.name())
+                .orElseThrow(()-> new ResourceNotFoundException("User is not an Librarian "+ username));
+    }
 
     private Response getRegisterUserResponse(User user) {
         String generatePassword = generatePassword();
