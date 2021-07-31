@@ -11,5 +11,6 @@ import java.util.Optional;
 
 public interface BookRequestRepository extends JpaRepository<BookRequest,Long> {
     void  deleteAllByUser_Id(Long user_id);
-    Optional<BookRequest> findByUser_Username(String user_username);
+    Optional<BookRequest> findByUser_UsernameAndStatus(String user_username, String status);
+    Optional<BookRequest>findByUser_Username(String username);
 }

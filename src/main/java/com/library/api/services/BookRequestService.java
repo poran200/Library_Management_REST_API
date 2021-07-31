@@ -7,6 +7,7 @@ package com.library.api.services;/*
 import com.library.api.dto.BookRequestCreateDto;
 import com.library.api.dto.BookRequestResponseDto;
 import com.library.api.dto.Response;
+import com.library.api.exception.BookRequestNotAcceptException;
 import com.library.api.exception.ResourceNotFoundException;
 import com.library.api.model.BookRequest;
 import com.library.api.model.BookRequestStatus;
@@ -30,14 +31,21 @@ public class BookRequestService {
     private final UserService userService;
     private final ModelMapper modelMapper;
 
-    public Response create(String currentUsername, BookRequestCreateDto dto) throws ResourceNotFoundException {
+    public Response create(String currentUsername, BookRequestCreateDto dto) throws ResourceNotFoundException, BookRequestNotAcceptException {
         User userByName = userService.getUserByName(currentUsername);
+        validateRequest(userByName);
         BookRequest bookRequest = modelMapper.map(dto, BookRequest.class);
         bookRequest.setUser(userByName);
         bookRequest.setStatus(BookRequestStatus.PENDING.name());
         BookRequest saveRequest = bookRequestRepository.save(bookRequest);
         return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED, "Book request created",
                 modelMapper.map(saveRequest, BookRequestResponseDto.class));
+    }
+
+    private void validateRequest(User userByName) throws BookRequestNotAcceptException {
+        Optional<BookRequest> optionalRequest = bookRequestRepository.findByUser_UsernameAndStatus(userByName.getUsername(),BookRequestStatus.PENDING.name());
+        if (optionalRequest.isPresent()) throw new BookRequestNotAcceptException("Book request not accept you already send an request which one is pending ");
+
     }
 
     public Response findByStudentId(String studentId) throws ResourceNotFoundException {
