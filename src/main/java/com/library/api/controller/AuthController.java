@@ -56,7 +56,7 @@ public class AuthController extends GlobalControllerAdvice {
      * Registration end point to add a user .Require Librarian access
      * Send password the provided email then user able to log in
      *
-     * @param dto Librarian registration dto require property for registration
+     * @param dto {@link LibrarianRegistrationDto}Librarian registration dto require property for registration
      * @return Registered student
      * @throws ResourceExistException if user email or user name is exits
      */
@@ -70,7 +70,7 @@ public class AuthController extends GlobalControllerAdvice {
     /**
      * Log in rest end point
      *
-     * @param dto username and password need provide
+     * @param dto username and password need provide {@link LoginDto}
      * @return the logged in user information
      * @throws ResourceNotFoundException if user is not found
      */
